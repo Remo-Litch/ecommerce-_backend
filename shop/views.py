@@ -3,16 +3,19 @@ from django.contrib.auth.models import User
 from .models import Product, Order, OrderItem
 from .serializers import ProductSerializer, UserRegisterSerializer, OrderItemSerializer, OrderSerializer
 from rest_framework import viewsets, status
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
+from rest_framework.authentication import TokenAuthentication
 # Create your views here.
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all().order_by('created_at')
     serializer_class = ProductSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAdminUser] 
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -22,6 +25,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         return [p() for p in permission_classes]
     
 class RegisterAPIView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -35,6 +39,7 @@ class RegisterAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class LoginAPIView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')

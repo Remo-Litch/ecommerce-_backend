@@ -15,7 +15,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all().order_by('created_at')
     serializer_class = ProductSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAdminUser] 
+    permission_classes = [IsAuthenticated] 
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
